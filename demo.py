@@ -111,7 +111,7 @@ def main(yolo):
                 else:
                     track_dict[track.track_id] += 1
 
-                # cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,255,255), 2)
+                cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,255,255), 2)
                 cv2.putText(frame, str(track.track_id)+"->Frame Count:"+str(track_dict[track.track_id]),(int(bbox[0]), int(bbox[1])),0, 5e-3 * 200, (0,255,0),2)
 
             point_test = center_point_inside_polygon(bbox, pts2)
@@ -120,22 +120,19 @@ def main(yolo):
                 cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,255,255), 2)
                 cv2.putText(frame, str(track.track_id), (int(bbox[0]), int(bbox[1])),0, 5e-3 * 200, (0,255,0),2)
 
-            cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,255,255), 2)
-
         # Drawing bounding box detections for people inside the area of interest
         for det in detections:
             bbox = det.to_tlbr()
-            cv2.rectangle(frame,(int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,0,0), 2)
 
-            # point_test = center_point_inside_polygon(bbox, pts)
+            point_test = center_point_inside_polygon(bbox, pts)
 
-            #if point_test == 'inside':
-             #   cv2.rectangle(frame,(int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,0,0), 2)
+            if point_test == 'inside':
+                cv2.rectangle(frame,(int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,0,0), 2)
 
-            #point_test = center_point_inside_polygon(bbox, pts2)
+            point_test = center_point_inside_polygon(bbox, pts2)
 
-            #if point_test == 'inside':
-             #   cv2.rectangle(frame,(int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,0,0), 2)
+            if point_test == 'inside':
+                cv2.rectangle(frame,(int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,0,0), 2)
         
         if writeVideo_flag:
             # save a frame
