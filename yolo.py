@@ -23,12 +23,12 @@ class YOLO(object):
         self.model_path = 'model_data/yolo.h5'
         self.anchors_path = 'model_data/yolo_anchors.txt'
         self.classes_path = 'model_data/coco_classes.txt'
-        self.score = 0.5
-        self.iou = 0.5
+        self.score = 0.4
+        self.iou = 0.4
         self.class_names = self._get_class()
         self.anchors = self._get_anchors()
         self.sess = K.get_session()
-        self.model_image_size = (416, 416) # fixed size or (None, None)
+        self.model_image_size = (832, 832) # fixed size or (None, None)
         self.is_fixed_size = self.model_image_size != (None, None)
         self.boxes, self.scores, self.classes = self.generate()
 
