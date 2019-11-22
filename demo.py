@@ -133,8 +133,6 @@ def main(yolo):
 
             if point_test == 'inside':
                 cv2.rectangle(frame,(int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,0,0), 2)
-            
-        cv2.imshow('', frame)
         
         if writeVideo_flag:
             # save a frame
