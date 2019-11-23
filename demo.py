@@ -140,7 +140,7 @@ def main(yolo):
         # cv2_imshow is used for Google Colab support
         # Import command for google colab:
         # from google.colab.patches import cv2_imshow
-        cv2_imshow('Wait Time Estimator', frame)
+        cv2_imshow(frame)
         # Change to cv2.imshow for local machine
         
         if writeVideo_flag:
