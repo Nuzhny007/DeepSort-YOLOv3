@@ -145,6 +145,7 @@ def main(yolo):
             list_file.write('\n')
             
         fps  = ( fps + (1./(time.time()-t1)) ) / 2
+        print("FPS: ", fps)
         
         # Press Q to stop!
         if cv2.waitKey(1) & 0xFF == ord('q'):
