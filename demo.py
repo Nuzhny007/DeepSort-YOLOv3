@@ -4,13 +4,16 @@
 from __future__ import division, print_function, absolute_import
 
 import os
-from timeit import time
-import warnings
 import sys
 import cv2
+import warnings
 import numpy as np
 from PIL import Image
 from yolo import YOLO
+from timeit import time
+# Remove the following import command, it is only included for Google Colab support
+from google.colab.patches import cv2_imshow
+
 
 from deep_sort import preprocessing
 from deep_sort import nn_matching
