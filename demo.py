@@ -133,6 +133,12 @@ def main(yolo):
 
             if point_test == 'inside':
                 cv2.rectangle(frame,(int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,0,0), 2)
+
+        # cv2_imshow is used for Google Colab support
+        # Import command for google colab:
+        # from google.colab.patches import cv2_imshow
+        cv2_imshow('Wait Time Estimator', frame)
+        # Change to cv2.imshow for local machine
         
         if writeVideo_flag:
             # save a frame
