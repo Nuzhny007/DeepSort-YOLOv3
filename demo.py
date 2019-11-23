@@ -11,16 +11,14 @@ import numpy as np
 from PIL import Image
 from yolo import YOLO
 from timeit import time
-# Remove the following import command, it is only included for Google Colab support
-from google.colab.patches import cv2_imshow
 
-
-from deep_sort import preprocessing
 from deep_sort import nn_matching
-from deep_sort.detection import Detection
+from deep_sort import preprocessing
 from deep_sort.tracker import Tracker
+from deep_sort.detection import Detection
 from tools import generate_detections as gdet
 from deep_sort.detection import Detection as ddet
+
 warnings.filterwarnings('ignore')
 
 # Function to check whether a point is inside a defined area
@@ -136,12 +134,6 @@ def main(yolo):
 
             if point_test == 'inside':
                 cv2.rectangle(frame,(int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,0,0), 2)
-
-        # cv2_imshow is used for Google Colab support
-        # Import command for google colab:
-        # from google.colab.patches import cv2_imshow
-        cv2_imshow(frame)
-        # Change to cv2.imshow for local machine
         
         if writeVideo_flag:
             # save a frame
