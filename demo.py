@@ -92,7 +92,7 @@ def main(yolo):
         # Defining the co-ordinates of the area of interest
         pts = np.array([[855,201],[1015.5,190.5],[1018.5,318],[766.5,316.5]], np.int32)
         pts = pts.reshape((-1,1,2)) # Yellow box
-        pts2 = np.array([[766.5,316.5],[1018.5,318.0],[1040,712.5],[510.0,711]], np.int32)
+        pts2 = np.array([[766.5,316.5],[1018.5,318.0],[1040,720],[510.0,720]], np.int32)
         pts2 = pts2.reshape((-1,1,2)) # Pink box
         cv2.polylines(frame, [pts], True, (0,255,255), thickness=2)
         cv2.polylines(frame, [pts2], True, (255,0,255), thickness=2)
