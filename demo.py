@@ -127,13 +127,13 @@ def main(yolo):
 
                 cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,255,255), 2)
                 wait_time = round((track_dict[track.track_id] / Input_FPS), 2)
-                cv2.putText(frame, str(track.track_id) + "->Time:" + str(wait_time) + " seconds",(int(bbox[0]), int(bbox[1])),0, 5e-3 * 200, (0,255,0),2)
+                cv2.putText(frame, str(track.track_id) + "->Time:" + str(wait_time) + " seconds",(int(bbox[0]), int(bbox[1])),0, 0.8, (0,255,0),2)
 
             point_test = center_point_inside_polygon(bbox, pts2)
 
             if point_test == 'inside':
                 cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,255,255), 2)
-                cv2.putText(frame, str(track.track_id), (int(bbox[0]), int(bbox[1])),0, 5e-3 * 200, (0,255,0),2)
+                cv2.putText(frame, str(track.track_id), (int(bbox[0]), int(bbox[1])),0, 0.8, (0,255,0),2)
 
         # Drawing bounding box detections for people inside the area of interest
         for det in detections:
@@ -157,7 +157,7 @@ def main(yolo):
         frame_count += 1
 
         op = "FPS_" + str(frame_count) + ": " + str(round(fps, 2))
-        print("\r" + op , end = "   ")
+        print("\r" + op , end = "")
         
         # Press Q to stop!
         if cv2.waitKey(1) & 0xFF == ord('q'):
