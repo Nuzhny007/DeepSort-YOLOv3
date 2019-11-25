@@ -53,7 +53,7 @@ def main(yolo):
     # Define the codec and create VideoWriter object
         w = int(video_capture.get(3))
         h = int(video_capture.get(4))
-        fourcc = cv2.VideoWriter_fourcc(*'MP4V')
+        fourcc = cv2.VideoWriter_fourcc(*'H264')
         out = cv2.VideoWriter('output.mp4', fourcc, 15, (w, h))
         list_file = open('detection.txt', 'w')
         frame_index = -1 
