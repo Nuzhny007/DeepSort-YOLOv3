@@ -37,6 +37,7 @@ def main(yolo):
     max_cosine_distance = 0.3
     nn_budget = None
     nms_max_overlap = 1.0
+    frame_count = 0
     
    # deep_sort 
     model_filename = 'model_data/mars-small128.pb'
@@ -146,7 +147,10 @@ def main(yolo):
             list_file.write('\n')
             
         fps  = ( fps + (1./(time.time()-t1)) ) / 2
-        print("\rFPS: ", round(fps, 2), end = "")
+        frame_count += 1
+
+        op = "FPS_" + str(frame_count) + ": " + str(round(fps, 2))
+        print("\r" + op , end = "")
         
         # Press Q to stop!
         if cv2.waitKey(1) & 0xFF == ord('q'):
