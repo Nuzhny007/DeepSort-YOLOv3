@@ -37,8 +37,6 @@ def main(yolo):
     max_cosine_distance = 0.3
     nn_budget = None
     nms_max_overlap = 1.0
-
-    print("\n")
     
    # deep_sort 
     model_filename = 'model_data/mars-small128.pb'
@@ -148,14 +146,14 @@ def main(yolo):
             list_file.write('\n')
             
         fps  = ( fps + (1./(time.time()-t1)) ) / 2
-        print("FPS: ", round(fps, 2), end = '\r')
+        print("FPS: ", round(fps, 2))
         
         # Press Q to stop!
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
  
     print("\n")
-    print("Unique People and their corresponding Wait Time")
+    print("Unique People and their corresponding Wait Time (in Frames)")
     print(track_dict)
 
     video_capture.release()
