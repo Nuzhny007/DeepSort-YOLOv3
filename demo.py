@@ -11,6 +11,7 @@ import numpy as np
 from PIL import Image
 from yolo import YOLO
 from timeit import time
+from moviepy.editor import VideoFileClip
 
 from deep_sort import nn_matching
 from deep_sort import preprocessing
