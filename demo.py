@@ -62,6 +62,8 @@ def main(yolo):
     # Dictionary to store the number of frames each frame_id was present in the defined area
     track_dict = {}
 
+    print("\n\n--------------------------------------------------------------------------\n")
+
     while True:
         ret, frame = video_capture.read()  # frame shape 640*480*3
         if ret != True:
