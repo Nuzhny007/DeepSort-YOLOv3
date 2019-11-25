@@ -33,6 +33,19 @@ def center_point_inside_polygon(bounding_box, polygon_coord):
 
 def main(yolo):
 
+    filename = "cyber.mp4"
+    clip = VideoFileClip(filename)
+
+    cap2 = cv2.VideoCapture(filename)
+    co = 0
+    ret2 = True
+    while ret2:
+        ret2, frame2 = cap2.read()
+        co += 1
+    cap2.release()
+
+    Input_FPS = co / clip.duration
+
    # Definition of the parameters
     max_cosine_distance = 0.3
     nn_budget = None
@@ -48,14 +61,14 @@ def main(yolo):
 
     writeVideo_flag = True 
     
-    video_capture = cv2.VideoCapture("cyber.mp4")
+    video_capture = cv2.VideoCapture(filename)
 
     if writeVideo_flag:
     # Define the codec and create VideoWriter object
         w = int(video_capture.get(3))
         h = int(video_capture.get(4))
         fourcc = cv2.VideoWriter_fourcc(*'MP4V')
-        out = cv2.VideoWriter('output.mp4', fourcc, 15, (w, h))
+        out = cv2.VideoWriter('output.mp4', fourcc, Input_FPS, (w, h))
         
     fps = 0.0
 
@@ -112,7 +125,8 @@ def main(yolo):
                     track_dict[track.track_id] += 1
 
                 cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,255,255), 2)
-                cv2.putText(frame, str(track.track_id)+"->Frame Count:"+str(track_dict[track.track_id]),(int(bbox[0]), int(bbox[1])),0, 5e-3 * 200, (0,255,0),2)
+                wait_time = round((track_dict[track.track_id] / Input_FPS), 2)
+                cv2.putText(frame, str(track.track_id) + "->Time:" + str(wait_time) + " seconds",(int(bbox[0]), int(bbox[1])),0, 5e-3 * 200, (0,255,0),2)
 
             point_test = center_point_inside_polygon(bbox, pts2)
 
@@ -148,9 +162,10 @@ def main(yolo):
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
  
-    print("\n")
-    print("Unique People and their corresponding Wait Time (in Frames)")
-    print(track_dict)
+    print("\n-----------------------------------------------------------------------")
+    print("WAIT TIME ESTIMATION ( Unique Person ID -> Time spent in counter area )\n")
+    for k, v in track_dict.items():
+        print(k, "->", str(round((v/Input_FPS), 2)) + " seconds")
 
     video_capture.release()
     if writeVideo_flag:
