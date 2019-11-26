@@ -74,7 +74,9 @@ def main(yolo):
     fps = 0.0
 
     # Dictionary to store the number of frames each frame_id was present in the defined area
-    track_dict = {}
+    queue_track_dict = {}
+    alley_track_dict = {}
+    store_track_dict = {}
 
     while True:
         ret, frame = video_capture.read()  # frame shape 640*480*3
@@ -116,37 +118,37 @@ def main(yolo):
                 continue 
             bbox = track.to_tlbr()
 
-            point_test = center_point_inside_polygon(bbox, pts)
+            queue_point_test = center_point_inside_polygon(bbox, pts)
+            alley_point_test = center_point_inside_polygon(bbox, pts2)
 
-            if point_test == 'inside':
-                
-                if track.track_id not in track_dict.keys():
-                    track_dict[track.track_id] = 1
-                else:
-                    track_dict[track.track_id] += 1
+            if queue_point_test == 'inside' or alley_point_test == 'inside':
+                if track.track_id not in store_track_dict.keys():
+                    store_track_dict[track.track_id] = 0
+                    queue_track_dict[track.track_id] = 0
+                    alley_track_dict[track.track_id] = 0
 
+            if queue_point_test == 'inside': # Queue Area
+                queue_track_dict[track.track_id] += 1
                 cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,255,255), 2)
-                wait_time = round((track_dict[track.track_id] / Input_FPS), 2)
+                wait_time = round((queue_track_dict[track.track_id] / Input_FPS), 2)
                 cv2.putText(frame, str(track.track_id) + "->Time:" + str(wait_time) + " seconds",(int(bbox[0]), int(bbox[1])),0, 0.8, (0,255,0),2)
 
-            point_test = center_point_inside_polygon(bbox, pts2)
-
-            if point_test == 'inside':
+            if alley_point_test == 'inside': # Alley Region
+                alley_track_dict[track.track_id] += 1
                 cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,255,255), 2)
                 cv2.putText(frame, str(track.track_id), (int(bbox[0]), int(bbox[1])),0, 0.8, (0,255,0),2)
+
+            if track.track_id in store_track_dict: # Entire Store Area
+                store_track_dict[track.track_id] = queue_track_dict[track.track_id] + alley_track_dict[track.track_id]
 
         # Drawing bounding box detections for people inside the area of interest
         for det in detections:
             bbox = det.to_tlbr()
 
-            point_test = center_point_inside_polygon(bbox, pts)
+            queue_point_test = center_point_inside_polygon(bbox, pts)
+            alley_point_test = center_point_inside_polygon(bbox, pts2)
 
-            if point_test == 'inside':
-                cv2.rectangle(frame,(int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,0,0), 2)
-
-            point_test = center_point_inside_polygon(bbox, pts2)
-
-            if point_test == 'inside':
+            if queue_point_test == 'inside' or alley_point_test == 'inside':
                 cv2.rectangle(frame,(int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,0,0), 2)
         
         if writeVideo_flag:
@@ -164,8 +166,18 @@ def main(yolo):
             break
  
     print("\n-----------------------------------------------------------------------")
-    print("WAIT TIME ESTIMATION ( Unique Person ID -> Time spent in counter area )\n")
-    for k, v in track_dict.items():
+    print("QUEUE WAIT TIME ( Unique Person ID -> Time spent )\n")
+    for k, v in queue_track_dict.items():
+        print(k, "->", str(round((v/Input_FPS), 2)) + " seconds")
+
+    print("\n-----------------------------------------------------------------------")
+    print("ALLEY TIME ( Unique Person ID -> Time spent )\n")
+    for k, v in alley_track_dict.items():
+        print(k, "->", str(round((v/Input_FPS), 2)) + " seconds")
+
+    print("\n-----------------------------------------------------------------------")
+    print("STORE TIME ( Unique Person ID -> Time spent  )\n")
+    for k, v in store_track_dict.items():
         print(k, "->", str(round((v/Input_FPS), 2)) + " seconds")
 
     video_capture.release()
