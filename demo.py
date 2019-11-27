@@ -3,6 +3,7 @@
 
 from __future__ import division, print_function, absolute_import
 
+# Importing standard libraries
 import os
 import sys
 import cv2
@@ -14,6 +15,7 @@ from yolo import YOLO
 from timeit import time
 from moviepy.editor import VideoFileClip
 
+# Importing other custom .py files
 from deep_sort import nn_matching
 from deep_sort import preprocessing
 from deep_sort.tracker import Tracker
@@ -35,7 +37,10 @@ def center_point_inside_polygon(bounding_box, polygon_coord):
 
 def main(yolo):
 
+    # Determining the FPS of a video having variable frame rate
+    # cv2.CAP_PROP_FPS is not used since it returns 'infinity' for variable frame rate videos
     filename = "cyber.mp4"
+    # Determining the total duration of the video
     clip = VideoFileClip(filename)
 
     cap2 = cv2.VideoCapture(filename)
@@ -43,18 +48,20 @@ def main(yolo):
     ret2 = True
     while ret2:
         ret2, frame2 = cap2.read()
+        # Determining the total number of frames
         co += 1
     cap2.release()
 
+    # Computing the average FPS of the video
     Input_FPS = co / clip.duration
 
-   # Definition of the parameters
+    # Definition of the parameters
     max_cosine_distance = 0.3
     nn_budget = None
     nms_max_overlap = 1.0
     frame_count = 0
     
-   # deep_sort 
+    # Implementing Deep Sort algorithm
     model_filename = 'model_data/mars-small128.pb'
     encoder = gdet.create_box_encoder(model_filename,batch_size=1)
     
@@ -84,6 +91,7 @@ def main(yolo):
         if ret != True:
             break
 
+        head_count = 0
         t1 = time.time()
 
        # image = Image.fromarray(frame)
@@ -123,6 +131,7 @@ def main(yolo):
             alley_point_test = center_point_inside_polygon(bbox, pts2)
 
             if queue_point_test == 'inside' or alley_point_test == 'inside':
+                head_count += 1
                 if track.track_id not in store_track_dict.keys():
                     store_track_dict[track.track_id] = 0
                     queue_track_dict[track.track_id] = 0
@@ -151,6 +160,14 @@ def main(yolo):
 
             if queue_point_test == 'inside' or alley_point_test == 'inside':
                 cv2.rectangle(frame,(int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,0,0), 2)
+
+        text = 'Head Count'
+        org = (30, 690)
+        font = cv2.FONT_HERSHEY_SIMPLEX 
+        fontScale = 2
+        color = (0, 255, 0) 
+        thickness = 2
+        cv2.putText(frame, text + ":" + " " + str(head_count), org, font, fontScale, color, thickness, cv2.LINE_AA, False)  
         
         if writeVideo_flag:
             # save a frame
