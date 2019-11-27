@@ -85,6 +85,8 @@ def main(yolo):
     queue_track_dict = {}
     alley_track_dict = {}
     store_track_dict = {}
+    latest_frame = {}
+    reidentified = {}
 
     while True:
         ret, frame = video_capture.read()  # frame shape 640*480*3
@@ -131,20 +133,28 @@ def main(yolo):
             alley_point_test = center_point_inside_polygon(bbox, pts2)
 
             if queue_point_test == 'inside' or alley_point_test == 'inside':
+                if track.track_id in latest_frame.keys():
+                    if latest_frame[track.track_id] != frame_count - 1:
+                        reidentified[track.track_id] = 1
+
+            if queue_point_test == 'inside' or alley_point_test == 'inside':
                 head_count += 1
                 if track.track_id not in store_track_dict.keys():
                     store_track_dict[track.track_id] = 0
                     queue_track_dict[track.track_id] = 0
                     alley_track_dict[track.track_id] = 0
+                    reidentified[track.track_id] = 0
 
             if queue_point_test == 'inside': # Queue Area
                 queue_track_dict[track.track_id] += 1
+                latest_frame[track.track_id] = frame_count
                 cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,255,255), 2)
                 wait_time = round((queue_track_dict[track.track_id] / Input_FPS), 2)
                 cv2.putText(frame, str(track.track_id) + "->Time:" + str(wait_time) + " seconds",(int(bbox[0]), int(bbox[1])),0, 0.8, (0,255,0),2)
 
             if alley_point_test == 'inside': # Alley Region
                 alley_track_dict[track.track_id] += 1
+                latest_frame[track.track_id] = frame_count
                 cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,255,255), 2)
                 cv2.putText(frame, str(track.track_id), (int(bbox[0]), int(bbox[1])),0, 0.8, (0,255,0),2)
 
@@ -198,13 +208,17 @@ def main(yolo):
     for k, v in store_track_dict.items():
         print(k, "->", str(round((v/Input_FPS), 2)) + " seconds")
 
-    csv_columns = ['Unique Person ID', 'Queue Time in AOI', 'Total Store Time']
+    csv_columns = ['Unique Person ID', 'Queue Time in AOI', 'Total Store Time', 'Re-Identified']
     csv_data = []
     csv_row = {}
     csv_file = 'Store_Data.csv'
     for k, v in store_track_dict.items():
          csv_row = {}
-         csv_row = {csv_columns[0]: k, csv_columns[1]: round((queue_track_dict[k] / Input_FPS), 2), csv_columns[2]: round((v / Input_FPS), 2)}
+         if reidentified[k] == 1:
+             reid = 'Yes'
+         else:
+             reid = 'No'
+         csv_row = {csv_columns[0]: k, csv_columns[1]: round((queue_track_dict[k] / Input_FPS), 2), csv_columns[2]: round((v / Input_FPS), 2), csv_columns[3]: reid}
          csv_data.append(csv_row)
 
     with open(csv_file, 'w') as csvfile:
