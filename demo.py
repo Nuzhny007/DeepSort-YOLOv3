@@ -6,6 +6,7 @@ from __future__ import division, print_function, absolute_import
 import os
 import sys
 import cv2
+import csv
 import warnings
 import numpy as np
 from PIL import Image
@@ -179,6 +180,21 @@ def main(yolo):
     print("STORE TIME ( Unique Person ID -> Time spent  )\n")
     for k, v in store_track_dict.items():
         print(k, "->", str(round((v/Input_FPS), 2)) + " seconds")
+
+    csv_columns = ['Unique Person ID', 'Queue Time in AOI', 'Total Store Time']
+    csv_data = []
+    csv_row = {}
+    csv_file = 'Store_Data.csv'
+    for k, v in store_track_dict.items():
+         csv_row = {}
+         csv_row = {csv_columns[0]: k, csv_columns[1]: round((queue_track_dict[k] / Input_FPS), 2), csv_columns[2]: round((v / Input_FPS), 2)}
+         csv_data.append(csv_row)
+
+    with open(csv_file, 'w') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=csv_columns)
+        writer.writeheader()
+        for data in csv_data:
+            writer.writerow(data)
 
     video_capture.release()
     if writeVideo_flag:
