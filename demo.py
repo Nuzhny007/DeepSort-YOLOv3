@@ -173,7 +173,6 @@ def main(yolo):
             if queue_point_test == 'inside' or alley_point_test == 'inside':
                 cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])), (255,0,0), 2)
 
-        cv2.putText(frame, "Head Count: " + str(head_count), ( 30, 690 ), cv2.FONT_HERSHEY_COMPLEX_SMALL, 2, (0, 0, 0), 3, cv2.LINE_AA, False)
         cv2.putText(frame, "Head Count: " + str(head_count), ( 30, 650 ), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1.7, (0, 0, 0), 3, cv2.LINE_AA, False)
         cv2.putText(frame, "Head Count: " + str(head_count), ( 30, 650 ), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1.7, (0, 255, 77), 2, cv2.LINE_AA, False)
 
