@@ -160,7 +160,7 @@ def main(yolo):
                 cv2.putText(frame, str(track.track_id), (int(bbox[0]), int(bbox[1])), 0, 0.8, (0, 0, 0), 4)
                 cv2.putText(frame, str(track.track_id), (int(bbox[0]), int(bbox[1])), 0, 0.8, (0, 255, 77), 2)
 
-            if track.track_id in store_track_dict: # Entire Store Area
+            if track.track_id in store_track_dict.keys(): # Entire Store Area
                 store_track_dict[track.track_id] = queue_track_dict[track.track_id] + alley_track_dict[track.track_id]
 
         # Drawing bounding box detections for people inside the area of interest
