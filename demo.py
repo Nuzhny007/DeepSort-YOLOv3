@@ -153,7 +153,7 @@ def main(yolo):
                 cv2.putText(frame, str(track.track_id) + "->Time:" + str(wait_time) + " seconds", (int(bbox[0]), int(bbox[1])), 0, 0.8, (0, 0, 0), 3)
                 cv2.putText(frame, str(track.track_id) + "->Time:" + str(wait_time) + " seconds", (int(bbox[0]), int(bbox[1])), 0, 0.8, (0, 255, 77), 2)
 
-            if alley_point_test == 'inside': # Alley Region
+            if alley_point_test == 'inside': # Alley Region 
                 alley_track_dict[track.track_id] += 1
                 latest_frame[track.track_id] = frame_count
                 cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,255,255), 2)
