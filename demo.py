@@ -150,13 +150,13 @@ def main(yolo):
                 latest_frame[track.track_id] = frame_count
                 cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,255,255), 2)
                 wait_time = round((queue_track_dict[track.track_id] / Input_FPS), 2)
-                cv2.putText(frame, str(track.track_id) + "->Time:" + str(wait_time) + " seconds",(int(bbox[0]), int(bbox[1])),0, 0.8, (0,255,0),2)
+                cv2.putText(frame, str(track.track_id) + "->Time:" + str(wait_time) + " seconds", (int(bbox[0]), int(bbox[1])), 0, 0.8, (0, 255, 77), 2)
 
             if alley_point_test == 'inside': # Alley Region
                 alley_track_dict[track.track_id] += 1
                 latest_frame[track.track_id] = frame_count
                 cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,255,255), 2)
-                cv2.putText(frame, str(track.track_id), (int(bbox[0]), int(bbox[1])),0, 0.8, (0,255,0),2)
+                cv2.putText(frame, str(track.track_id), (int(bbox[0]), int(bbox[1])), 0, 0.8, (0, 255, 77), 2)
 
             if track.track_id in store_track_dict: # Entire Store Area
                 store_track_dict[track.track_id] = queue_track_dict[track.track_id] + alley_track_dict[track.track_id]
@@ -169,15 +169,9 @@ def main(yolo):
             alley_point_test = center_point_inside_polygon(bbox, pts2)
 
             if queue_point_test == 'inside' or alley_point_test == 'inside':
-                cv2.rectangle(frame,(int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,0,0), 2)
+                cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])), (255,0,0), 2)
 
-        text = 'Head Count'
-        org = (30, 690)
-        font = cv2.FONT_HERSHEY_SIMPLEX 
-        fontScale = 2
-        color = (0, 255, 0) 
-        thickness = 2
-        cv2.putText(frame, text + ":" + " " + str(head_count), org, font, fontScale, color, thickness, cv2.LINE_AA, False)  
+        cv2.putText(frame, "Head Count: " + str(head_count), (30, 690), cv2.FONT_HERSHEY_COMPLEX_SMALL, 2.0, (0, 255, 77), 2.0, cv2.LINE_AA, False)  
         
         if writeVideo_flag:
             # save a frame
