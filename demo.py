@@ -174,7 +174,18 @@ def main(yolo):
                 cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])), (255,0,0), 2)
 
         cv2.putText(frame, "Head Count: " + str(head_count), ( 30, 690 ), cv2.FONT_HERSHEY_COMPLEX_SMALL, 2, (0, 0, 0), 3, cv2.LINE_AA, False)
-        cv2.putText(frame, "Head Count: " + str(head_count), ( 30, 690 ), cv2.FONT_HERSHEY_COMPLEX_SMALL, 2, (0, 255, 77), 2, cv2.LINE_AA, False)  
+        cv2.putText(frame, "Head Count: " + str(head_count), ( 30, 650 ), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1.7, (0, 0, 0), 3, cv2.LINE_AA, False)
+        cv2.putText(frame, "Head Count: " + str(head_count), ( 30, 650 ), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1.7, (0, 255, 77), 2, cv2.LINE_AA, False)
+
+        total_people = len([v for v in queue_track_dict.values() if v > 0])
+        total_queue_frames = sum(v for v in queue_track_dict.values() if v > 0)
+        avg_queue_frames = 0
+        if total_people != 0:
+            avg_queue_frames = total_queue_frames / total_people
+        avg_queue_time = round((avg_queue_frames / Input_FPS), 2)
+
+        cv2.putText(frame, "Average Queue Time: " + str(avg_queue_time) + ' seconds', ( 30, 690 ), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1.7, (0, 0, 0), 3, cv2.LINE_AA, False)
+        cv2.putText(frame, "Average Queue Time: " + str(avg_queue_time) + ' seconds', ( 30, 690 ), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1.7, (0, 255, 77), 2, cv2.LINE_AA, False) 
         
         if writeVideo_flag:
             # save a frame
