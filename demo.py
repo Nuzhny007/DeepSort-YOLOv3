@@ -13,6 +13,7 @@ import numpy as np
 from PIL import Image
 from yolo import YOLO
 from timeit import time
+import matplotlib.pyplot as plt
 from moviepy.editor import VideoFileClip
 
 # Importing other custom .py files
@@ -87,6 +88,8 @@ def main(yolo):
     store_track_dict = {}
     latest_frame = {}
     reidentified = {}
+    plot_head_count = []
+    plot_time = []
 
     while True:
         ret, frame = video_capture.read()  # frame shape 640*480*3
@@ -205,6 +208,9 @@ def main(yolo):
 
         op = "FPS_" + str(frame_count) + ": " + str(round(fps, 2))
         print("\r" + op , end = "")
+
+        plot_time.append(round((frame_count / Input_FPS), 2))
+        plot_head_count.append(head_count)
         
         # Press Q to stop!
         if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -243,6 +249,15 @@ def main(yolo):
         writer.writeheader()
         for data in csv_data:
             writer.writerow(data)
+
+    plt.style.use('fivethirtyeight')
+    plt.plot(plot_time, plot_head_count, color='green', linewidth = 2, linestyle = 'solid')
+    plt.xlabel('Time Stamp (in seconds)')
+    plt.ylabel('Head Count in the store')
+    plt.xlim(0, round(frame_count / Input_FPS) + 1)
+    plt.ylim(0, max(plot_head_count) + 1)
+    plt.title('Footfall Analysis')
+    plt.savefig('Footfall_Analysis.png', bbox_inches='tight')
 
     video_capture.release()
     if writeVideo_flag:
