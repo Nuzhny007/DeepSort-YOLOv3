@@ -81,13 +81,14 @@ def main(yolo):
     fps = 0.0
 
     # Initializing empty variables for counting and tracking purpose
-    queue_track_dict = {}   # Count time in queue
-    alley_track_dict = {}   # Count time in alley
-    store_track_dict = {}   # Count total time in store
-    latest_frame = {}       # Track the last frame in which a person was identified
-    reidentified = {}       # Yes or No : whether the person has been re-identified at a later point in time
-    plot_head_count = []    # y-axis for Footfall Analysis
-    plot_time = []          # x-axis for Footfall Analysis
+    queue_track_dict = {}         # Count time in queue
+    alley_track_dict = {}         # Count time in alley
+    store_track_dict = {}         # Count total time in store
+    latest_frame = {}             # Track the last frame in which a person was identified
+    reidentified = {}             # Yes or No : whether the person has been re-identified at a later point in time
+    plot_head_count_store = []    # y-axis for Footfall Analysis
+    plot_head_count_queue = []    # y-axis for Footfall Analysis
+    plot_time = []                # x-axis for Footfall Analysis
 
     # Loop to process each frame and track people
     while True:
@@ -95,7 +96,8 @@ def main(yolo):
         if ret != True:
             break
 
-        head_count = 0
+        head_count_store = 0
+        head_count_queue = 0
         t1 = time.time()
 
         image = Image.fromarray(frame[...,::-1])   # BGR to RGB conversion
@@ -141,7 +143,7 @@ def main(yolo):
 
             # Initializing variables incase a new person has been seen by the model
             if queue_point_test == 'inside' or alley_point_test == 'inside':
-                head_count += 1
+                head_count_store += 1
                 if track.track_id not in store_track_dict.keys():
                     store_track_dict[track.track_id] = 0
                     queue_track_dict[track.track_id] = 0
@@ -150,6 +152,7 @@ def main(yolo):
 
             # Processing for people inside the Queue Area
             if queue_point_test == 'inside':
+                head_count_queue += 1
                 queue_track_dict[track.track_id] += 1
                 latest_frame[track.track_id] = frame_count
                 cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,255,255), 2)
@@ -181,8 +184,8 @@ def main(yolo):
                 cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])), (255,0,0), 2)
 
         # Video Overlay - Head Count Data at that instant
-        cv2.putText(frame, "Head Count: " + str(head_count), ( 30, 610 ), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1.7, (0, 0, 0), 3, cv2.LINE_AA, False)
-        cv2.putText(frame, "Head Count: " + str(head_count), ( 30, 610 ), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1.7, (0, 255, 77), 2, cv2.LINE_AA, False)
+        cv2.putText(frame, "Head Count: " + str(head_count_store), ( 30, 610 ), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1.7, (0, 0, 0), 3, cv2.LINE_AA, False)
+        cv2.putText(frame, "Head Count: " + str(head_count_store), ( 30, 610 ), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1.7, (0, 255, 77), 2, cv2.LINE_AA, False)
 
         # Calculating the average wait time in queue
         total_people = len([v for v in queue_track_dict.values() if v > 0])
@@ -222,7 +225,8 @@ def main(yolo):
         # Adding plot values for Footfall Analysis every 2 seconds (hard coded for now)
         if frame_count % 50 == 0:
             plot_time.append(round((frame_count / Input_FPS), 2))
-            plot_head_count.append(head_count)
+            plot_head_count_store.append(head_count_store)
+            plot_head_count_queue.append(head_count_queue)
         
         # Press Q to stop the video
         if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -265,13 +269,16 @@ def main(yolo):
         for data in csv_data:
             writer.writerow(data)
 
-    # Plotting the graph and saving it as a .png file
-    plt.style.use('fivethirtyeight')
-    plt.plot(plot_time, plot_head_count)
+    # Plotting the stack area graph and saving it as a .png file
+    plot_head_count = np.vstack([plot_head_count_queue, plot_head_count_store])
+    labels = ["Queue Head Count", "Store Head Count"]
+    fig, ax = plt.subplots()
+    ax.stackplot(plot_time, plot_head_count, labels = labels)
+    ax.legend(loc='upper left')
     plt.xlabel('Time Stamp (in seconds)')
-    plt.ylabel('Head Count in the store')
+    plt.ylabel('Head Count')
     plt.xlim(0, round(frame_count / Input_FPS) + 1)
-    plt.ylim(0, max(plot_head_count) + 1)
+    plt.ylim(0, max(plot_head_count_store) + 2)
     plt.title('Footfall Analysis')
     plt.savefig('Footfall_Analysis.png', bbox_inches='tight')
 
