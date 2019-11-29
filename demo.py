@@ -219,9 +219,10 @@ def main(yolo):
         op = "FPS_" + str(frame_count) + ": " + str(round(fps, 2))
         print("\r" + op , end = "")
 
-        # Adding plot values for Footfall Analysis
-        plot_time.append(round((frame_count / Input_FPS), 2))
-        plot_head_count.append(head_count)
+        # Adding plot values for Footfall Analysis every 2 seconds (hard coded for now)
+        if frame_count % 50 == 0:
+            plot_time.append(round((frame_count / Input_FPS), 2))
+            plot_head_count.append(head_count)
         
         # Press Q to stop the video
         if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -266,7 +267,7 @@ def main(yolo):
 
     # Plotting the graph and saving it as a .png file
     plt.style.use('fivethirtyeight')
-    plt.plot(plot_time, plot_head_count, color='green', linewidth = 2, linestyle = 'solid')
+    plt.plot(plot_time, plot_head_count)
     plt.xlabel('Time Stamp (in seconds)')
     plt.ylabel('Head Count in the store')
     plt.xlim(0, round(frame_count / Input_FPS) + 1)
