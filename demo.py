@@ -27,6 +27,7 @@ from deep_sort.detection import Detection as ddet
 warnings.filterwarnings('ignore')
 
 # Function to check whether a point is inside a defined area
+# We are checking if the bottom line of the bounding box enters an area of interest
 def center_point_inside_polygon(bounding_box, polygon_coord):
     center = (int((bounding_box[0] + bounding_box[2])/2), int(bounding_box[3]))
     polygon_coord = np.array(polygon_coord, np.int32)
@@ -36,6 +37,7 @@ def center_point_inside_polygon(bounding_box, polygon_coord):
         return "outside"
     return "inside"
 
+# Main Function which implements the YOLOv3 Detector and DeepSort Tracking Algorithm
 def main(yolo):
 
     # Determining the FPS of a video having variable frame rate
@@ -66,80 +68,78 @@ def main(yolo):
     model_filename = 'model_data/mars-small128.pb'
     encoder = gdet.create_box_encoder(model_filename,batch_size=1)
     
+    # Cosine distance is used as the metric
     metric = nn_matching.NearestNeighborDistanceMetric("cosine", max_cosine_distance, nn_budget)
     tracker = Tracker(metric)
-
-    writeVideo_flag = True 
     
     video_capture = cv2.VideoCapture(filename)
 
-    if writeVideo_flag:
-    # Define the codec and create VideoWriter object
-        w = int(video_capture.get(3))
-        h = int(video_capture.get(4))
-        fourcc = cv2.VideoWriter_fourcc(*'MP4V')
-        out = cv2.VideoWriter('output.mp4', fourcc, Input_FPS, (w, h))
-        
+    # Define the codec and create a VideoWriter object to save the output video
+    out = cv2.VideoWriter('output.mp4', cv2.VideoWriter_fourcc(*'MP4V'), Input_FPS, (int(video_capture.get(3)), int(video_capture.get(4))))
+
+    # To calculate the frames processed by the deep sort algorithm per second
     fps = 0.0
 
-    # Dictionary to store the number of frames each frame_id was present in the defined area
-    queue_track_dict = {}
-    alley_track_dict = {}
-    store_track_dict = {}
-    latest_frame = {}
-    reidentified = {}
-    plot_head_count = []
-    plot_time = []
+    # Initializing empty variables for counting and tracking purpose
+    queue_track_dict = {}   # Count time in queue
+    alley_track_dict = {}   # Count time in alley
+    store_track_dict = {}   # Count total time in store
+    latest_frame = {}       # Track the last frame in which a person was identified
+    reidentified = {}       # Yes or No : whether the person has been re-identified at a later point in time
+    plot_head_count = []    # y-axis for Footfall Analysis
+    plot_time = []          # x-axis for Footfall Analysis
 
+    # Loop to process each frame and track people
     while True:
-        ret, frame = video_capture.read()  # frame shape 640*480*3
+        ret, frame = video_capture.read()
         if ret != True:
             break
 
         head_count = 0
         t1 = time.time()
 
-       # image = Image.fromarray(frame)
-        image = Image.fromarray(frame[...,::-1]) #bgr to rgb
+        image = Image.fromarray(frame[...,::-1])   # BGR to RGB conversion
         boxs = yolo.detect_image(image)
-       # print("box_num",len(boxs))
         features = encoder(frame,boxs)
         
-        # score to 1.0 here).
+        # Getting the detections having score of 0.0 to 1.0
         detections = [Detection(bbox, 1.0, feature) for bbox, feature in zip(boxs, features)]
         
-        # Run non-maxima suppression.
+        # Run non-maxima suppression on the bounding boxes
         boxes = np.array([d.tlwh for d in detections])
         scores = np.array([d.confidence for d in detections])
         indices = preprocessing.non_max_suppression(boxes, nms_max_overlap, scores)
         detections = [detections[i] for i in indices]
         
-        # Call the tracker
+        # Call the tracker to associate tracking boxes to detection boxes
         tracker.predict()
         tracker.update(detections)
 
         # Defining the co-ordinates of the area of interest
         pts = np.array([[855,201],[1015.5,190.5],[1018.5,318],[766.5,316.5]], np.int32)
-        pts = pts.reshape((-1,1,2)) # Yellow box
+        pts = pts.reshape((-1,1,2)) # Queue Area
         pts2 = np.array([[766.5,316.5],[1018.5,318.0],[1040,720],[510.0,720]], np.int32)
-        pts2 = pts2.reshape((-1,1,2)) # Pink box
+        pts2 = pts2.reshape((-1,1,2)) # Alley Region
         cv2.polylines(frame, [pts], True, (0,255,255), thickness=2)
         cv2.polylines(frame, [pts2], True, (255,0,255), thickness=2)
         
-        # Drawing tracker boxes and frame count for people inside the area of interest
+        # Drawing tracker boxes and frame count for people inside the areas of interest
         for track in tracker.tracks:
             if not track.is_confirmed() or track.time_since_update > 1:
                 continue 
             bbox = track.to_tlbr()
 
+            # Checking if the person is within an area of interest
             queue_point_test = center_point_inside_polygon(bbox, pts)
             alley_point_test = center_point_inside_polygon(bbox, pts2)
 
+            # Checking if a person has been reidentified in a later frame
             if queue_point_test == 'inside' or alley_point_test == 'inside':
                 if track.track_id in latest_frame.keys():
                     if latest_frame[track.track_id] != frame_count - 1:
                         reidentified[track.track_id] = 1
 
+            # Initializing variables incase a new person has been seen by the model
             if queue_point_test == 'inside' or alley_point_test == 'inside':
                 head_count += 1
                 if track.track_id not in store_track_dict.keys():
@@ -148,7 +148,8 @@ def main(yolo):
                     alley_track_dict[track.track_id] = 0
                     reidentified[track.track_id] = 0
 
-            if queue_point_test == 'inside': # Queue Area
+            # Processing for people inside the Queue Area
+            if queue_point_test == 'inside':
                 queue_track_dict[track.track_id] += 1
                 latest_frame[track.track_id] = frame_count
                 cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,255,255), 2)
@@ -156,29 +157,34 @@ def main(yolo):
                 cv2.putText(frame, str(track.track_id) + "->Time:" + str(wait_time) + " seconds", (int(bbox[0]), int(bbox[1])), 0, 0.8, (0, 0, 0), 4)
                 cv2.putText(frame, str(track.track_id) + "->Time:" + str(wait_time) + " seconds", (int(bbox[0]), int(bbox[1])), 0, 0.8, (0, 255, 77), 2)
 
-            if alley_point_test == 'inside': # Alley Region
+            # Processing for people inside the Alley Region
+            if alley_point_test == 'inside':
                 alley_track_dict[track.track_id] += 1
                 latest_frame[track.track_id] = frame_count
                 cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,255,255), 2)
                 cv2.putText(frame, str(track.track_id), (int(bbox[0]), int(bbox[1])), 0, 0.8, (0, 0, 0), 4)
                 cv2.putText(frame, str(track.track_id), (int(bbox[0]), int(bbox[1])), 0, 0.8, (0, 255, 77), 2)
 
-            if track.track_id in store_track_dict.keys(): # Entire Store Area
+            # Getting the total Store time for a person
+            if track.track_id in store_track_dict.keys():
                 store_track_dict[track.track_id] = queue_track_dict[track.track_id] + alley_track_dict[track.track_id]
 
-        # Drawing bounding box detections for people inside the area of interest
+        # Drawing bounding box detections for people inside the store
         for det in detections:
             bbox = det.to_tlbr()
 
+            # Checking if the person is within an area of interest
             queue_point_test = center_point_inside_polygon(bbox, pts)
             alley_point_test = center_point_inside_polygon(bbox, pts2)
 
             if queue_point_test == 'inside' or alley_point_test == 'inside':
                 cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])), (255,0,0), 2)
 
+        # Video Overlay - Head Count Data at that instant
         cv2.putText(frame, "Head Count: " + str(head_count), ( 30, 610 ), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1.7, (0, 0, 0), 3, cv2.LINE_AA, False)
         cv2.putText(frame, "Head Count: " + str(head_count), ( 30, 610 ), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1.7, (0, 255, 77), 2, cv2.LINE_AA, False)
 
+        # Calculating the average wait time in queue
         total_people = len([v for v in queue_track_dict.values() if v > 0])
         total_queue_frames = sum(v for v in queue_track_dict.values() if v > 0)
         avg_queue_frames = 0
@@ -186,9 +192,11 @@ def main(yolo):
             avg_queue_frames = total_queue_frames / total_people
         avg_queue_time = round((avg_queue_frames / Input_FPS), 2)
 
+        # Video Overlay - Average Wait Time in Queue
         cv2.putText(frame, "Average Queue Time: " + str(avg_queue_time) + ' seconds', ( 30, 690 ), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1.7, (0, 0, 0), 3, cv2.LINE_AA, False)
         cv2.putText(frame, "Average Queue Time: " + str(avg_queue_time) + ' seconds', ( 30, 690 ), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1.7, (0, 255, 77), 2, cv2.LINE_AA, False)
 
+        # Calculating the average wait time in the store
         total_people = len(store_track_dict)
         total_store_frames = sum(store_track_dict.values())
         avg_store_frames = 0
@@ -196,26 +204,30 @@ def main(yolo):
             avg_store_frames = total_store_frames / total_people
         avg_store_time = round((avg_store_frames / Input_FPS), 2)
 
+        # Video Overlay - Average Store time
         cv2.putText(frame, "Average Store Time: " + str(avg_store_time) + ' seconds', ( 30, 650 ), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1.7, (0, 0, 0), 3, cv2.LINE_AA, False)
         cv2.putText(frame, "Average Store Time: " + str(avg_store_time) + ' seconds', ( 30, 650 ), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1.7, (0, 255, 77), 2, cv2.LINE_AA, False)
-        
-        if writeVideo_flag:
-            # save a frame
-            out.write(frame)
-            
+
+        # Write the frame onto the VideoWriter object
+        out.write(frame)
+
+        # Calculating the frames processed per second by the model  
         fps  = ( fps + (1./(time.time()-t1)) ) / 2
         frame_count += 1
 
+        # Printing processing status to track completion
         op = "FPS_" + str(frame_count) + ": " + str(round(fps, 2))
         print("\r" + op , end = "")
 
+        # Adding plot values for Footfall Analysis
         plot_time.append(round((frame_count / Input_FPS), 2))
         plot_head_count.append(head_count)
         
-        # Press Q to stop!
+        # Press Q to stop the video
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
- 
+
+    # Data Processed as per the video provided
     print("\n-----------------------------------------------------------------------")
     print("QUEUE WAIT TIME ( Unique Person ID -> Time spent )\n")
     for k, v in queue_track_dict.items():
@@ -231,6 +243,7 @@ def main(yolo):
     for k, v in store_track_dict.items():
         print(k, "->", str(round((v/Input_FPS), 2)) + " seconds")
 
+    # Defining data to be written into the csv file
     csv_columns = ['Unique Person ID', 'Queue Time in AOI', 'Total Store Time', 'Re-Identified']
     csv_data = []
     csv_row = {}
@@ -244,12 +257,14 @@ def main(yolo):
          csv_row = {csv_columns[0]: k, csv_columns[1]: round((queue_track_dict[k] / Input_FPS), 2), csv_columns[2]: round((v / Input_FPS), 2), csv_columns[3]: reid}
          csv_data.append(csv_row)
 
+    # Writing the data into the csv file
     with open(csv_file, 'w') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=csv_columns)
         writer.writeheader()
         for data in csv_data:
             writer.writerow(data)
 
+    # Plotting the graph and saving it as a .png file
     plt.style.use('fivethirtyeight')
     plt.plot(plot_time, plot_head_count, color='green', linewidth = 2, linestyle = 'solid')
     plt.xlabel('Time Stamp (in seconds)')
@@ -259,9 +274,9 @@ def main(yolo):
     plt.title('Footfall Analysis')
     plt.savefig('Footfall_Analysis.png', bbox_inches='tight')
 
+    # Releasing objects created
     video_capture.release()
-    if writeVideo_flag:
-        out.release()
+    out.release()
     cv2.destroyAllWindows()
 
 if __name__ == '__main__':
