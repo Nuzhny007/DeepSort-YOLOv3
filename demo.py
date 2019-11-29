@@ -116,10 +116,10 @@ def main(yolo):
         tracker.update(detections)
 
         # Defining the co-ordinates of the area of interest
-        pts = np.array([[855,201],[1015.5,190.5],[1018.5,318],[766.5,316.5]], np.int32)
-        pts = pts.reshape((-1,1,2)) # Queue Area
-        pts2 = np.array([[766.5,316.5],[1018.5,318.0],[1040,720],[510.0,720]], np.int32)
-        pts2 = pts2.reshape((-1,1,2)) # Alley Region
+        pts = np.array([[790,230],[1025,230],[1020,400],[630,400]], np.int32)
+        pts = pts.reshape((-1,1,2))     # Queue Area
+        pts2 = np.array([[630,400],[1020,400],[970,720],[300.0,720]], np.int32)
+        pts2 = pts2.reshape((-1,1,2))   # Alley Region
         cv2.polylines(frame, [pts], True, (0,255,255), thickness=2)
         cv2.polylines(frame, [pts2], True, (255,0,255), thickness=2)
         
