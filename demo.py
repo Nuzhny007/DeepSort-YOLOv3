@@ -248,11 +248,11 @@ def main(yolo):
     for k, v in store_track_dict.items():
         print(k, "->", str(round((v/Input_FPS), 2)) + " seconds")
 
-    # Defining data to be written into the csv file
+    # Defining data to be written into the csv file - Detailed Report
     csv_columns = ['Unique Person ID', 'Queue Time in AOI', 'Total Store Time', 'Re-Identified']
     csv_data = []
     csv_row = {}
-    csv_file = 'Store_Data.csv'
+    detailed_csv_file = 'Detailed_Store_Report.csv'
     for k, v in store_track_dict.items():
          csv_row = {}
          if reidentified[k] == 1:
@@ -262,19 +262,28 @@ def main(yolo):
          csv_row = {csv_columns[0]: k, csv_columns[1]: round((queue_track_dict[k] / Input_FPS), 2), csv_columns[2]: round((v / Input_FPS), 2), csv_columns[3]: reid}
          csv_data.append(csv_row)
 
-    # Writing the data into the csv file
-    with open(csv_file, 'w') as csvfile:
+    # Writing the data into the csv file - Detailed Report
+    with open(detailed_csv_file, 'w') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=csv_columns)
         writer.writeheader()
         for data in csv_data:
             writer.writerow(data)
 
-    # Plotting the stack area graph and saving it as a .png file
-    plot_head_count = np.vstack([plot_head_count_queue, plot_head_count_store])
-    labels = ["Queue Head Count", "Store Head Count"]
-    fig, ax = plt.subplots()
-    ax.stackplot(plot_time, plot_head_count, labels = labels)
-    ax.legend(loc='upper left')
+    # Defining data to be written into the csv file - Brief Report
+    csv_columns_brief = ['Total Head Count', 'Total Queue Time', 'Average Queue Time', 'Total Store Time', 'Average Store Time']
+    brief_csv_file = 'Brief_Store_Report.csv'
+    csv_data_brief = {csv_columns_brief[0]: len(store_track_dict), csv_columns_brief[1]: round((sum(queue_track_dict.values()) / Input_FPS), 2), csv_columns_brief[2]: avg_queue_time, csv_columns_brief[3]: round((sum(store_track_dict.values()) / Input_FPS), 2), csv_columns_brief[4]: avg_store_time}
+
+    # Writing the data into the csv file - Brief Report
+    with open(brief_csv_file, 'w') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=csv_columns_brief)
+        writer.writeheader()
+        writer.writerow(csv_data_brief)
+
+    # Plotting a store and queue head count graph w.r.t time and saving it as a .png file
+    plt.plot(plot_time, plot_head_count_queue)
+    plt.plot(plot_time, plot_head_count_store)
+    plt.legend(['Queue Head Count', 'Store Head Count'], loc='upper left')
     plt.xlabel('Time Stamp (in seconds)')
     plt.ylabel('Head Count')
     plt.xlim(0, round(frame_count / Input_FPS) + 1)
