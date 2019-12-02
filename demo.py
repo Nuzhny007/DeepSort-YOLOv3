@@ -132,8 +132,8 @@ def main(yolo):
             bbox = track.to_tlbr()
 
             # Checking if the person is within an area of interest
-            queue_point_test = center_point_inside_polygon(bbox, pts)
-            alley_point_test = center_point_inside_polygon(bbox, pts2)
+            queue_point_test = center_point_inside_polygon(bbox, pts2)
+            alley_point_test = center_point_inside_polygon(bbox, pts)
 
             # Checking if a person has been reidentified in a later frame
             if queue_point_test == 'inside' or alley_point_test == 'inside':
