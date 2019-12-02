@@ -280,7 +280,7 @@ def main(yolo):
         writer.writeheader()
         writer.writerow(csv_data_brief)
 
-    # Plotting a store and queue head count graph w.r.t time and saving it as a .png file
+    # Plotting a time-series line graph for store and queue head count data and saving it as a .png file
     plt.plot(plot_time, plot_head_count_queue)
     plt.plot(plot_time, plot_head_count_store)
     plt.legend(['Queue Head Count', 'Store Head Count'], loc='upper left')
