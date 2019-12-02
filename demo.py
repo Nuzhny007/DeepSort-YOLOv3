@@ -219,7 +219,7 @@ def main(yolo):
         frame_count += 1
 
         # Printing processing status to track completion
-        op = "FPS_" + str(frame_count) + ": " + str(round(fps, 2))
+        op = "FPS_" + str(frame_count) + "/" + str(co) + ": " + str(round(fps, 2))
         print("\r" + op , end = "")
 
         # Adding plot values for Footfall Analysis every 2 seconds (hard coded for now)
