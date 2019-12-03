@@ -100,9 +100,15 @@ def main(yolo):
         head_count_queue = 0
         t1 = time.time()
 
-        image = Image.fromarray(frame[...,::-1])   # BGR to RGB conversion
+        frame2 = frame.copy()
+        pts3 = np.array([[0,0],[710,0],[710,90],[320,300],[0,520]], np.int32)
+        pts3 = pts3.reshape((-1,1,2)) # Black box
+        cv2.polylines(frame2, [pts3], True, (0,0,0), thickness=2)
+        cv2.fillPoly(frame2, pts =[pts3], color=(0,0,0))
+
+        image = Image.fromarray(frame2[...,::-1])   # BGR to RGB conversion
         boxs = yolo.detect_image(image)
-        features = encoder(frame,boxs)
+        features = encoder(frame2,boxs)
         
         # Getting the detections having score of 0.0 to 1.0
         detections = [Detection(bbox, 1.0, feature) for bbox, feature in zip(boxs, features)]
