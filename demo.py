@@ -291,6 +291,10 @@ def main(yolo):
     plt.title('Footfall Analysis')
     plt.savefig('Footfall_Analysis.png', bbox_inches='tight')
 
+    # Printing plot data
+    for i in range(len(plot_time)):
+        print(plot_time[i], plot_head_count_queue[i], plot_head_count_store[i]) 
+
     # Releasing objects created
     video_capture.release()
     out.release()
