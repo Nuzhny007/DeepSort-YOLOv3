@@ -157,8 +157,8 @@ def main(yolo):
                 latest_frame[track.track_id] = frame_count
                 cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,255,255), 2)
                 wait_time = round((queue_track_dict[track.track_id] / Input_FPS), 2)
-                cv2.putText(frame, str(track.track_id) + "->Time:" + str(wait_time) + " seconds", (int(bbox[0]), int(bbox[1])), 0, 0.8, (0, 0, 0), 4)
-                cv2.putText(frame, str(track.track_id) + "->Time:" + str(wait_time) + " seconds", (int(bbox[0]), int(bbox[1])), 0, 0.8, (0, 255, 77), 2)
+                cv2.putText(frame, str(track.track_id) + ": " + str(wait_time) + "s", (int(bbox[0]), int(bbox[1])), 0, 0.8, (0, 0, 0), 4)
+                cv2.putText(frame, str(track.track_id) + ": " + str(wait_time) + "s", (int(bbox[0]), int(bbox[1])), 0, 0.8, (0, 255, 77), 2)
 
             # Processing for people inside the Alley Region
             if alley_point_test == 'inside':
@@ -184,8 +184,8 @@ def main(yolo):
                 cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])), (255,0,0), 2)
 
         # Video Overlay - Head Count Data at that instant
-        cv2.putText(frame, "Head Count: " + str(head_count_store), ( 30, 610 ), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1.7, (0, 0, 0), 3, cv2.LINE_AA, False)
-        cv2.putText(frame, "Head Count: " + str(head_count_store), ( 30, 610 ), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1.7, (0, 255, 77), 2, cv2.LINE_AA, False)
+        cv2.putText(frame, "Count: " + str(head_count_store), ( 30, 610 ), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1.5, (0, 0, 0), 3, cv2.LINE_AA, False)
+        cv2.putText(frame, "Count: " + str(head_count_store), ( 30, 610 ), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1.5, (0, 255, 77), 2, cv2.LINE_AA, False)
 
         # Calculating the average wait time in queue
         total_people = len([v for v in queue_track_dict.values() if v > 0])
@@ -196,8 +196,8 @@ def main(yolo):
         avg_queue_time = round((avg_queue_frames / Input_FPS), 2)
 
         # Video Overlay - Average Wait Time in Queue
-        cv2.putText(frame, "Average Queue Time: " + str(avg_queue_time) + ' seconds', ( 30, 690 ), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1.7, (0, 0, 0), 3, cv2.LINE_AA, False)
-        cv2.putText(frame, "Average Queue Time: " + str(avg_queue_time) + ' seconds', ( 30, 690 ), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1.7, (0, 255, 77), 2, cv2.LINE_AA, False)
+        cv2.putText(frame, "Avg Queue Time: " + str(avg_queue_time) + 's', ( 30, 690 ), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1.5, (0, 0, 0), 3, cv2.LINE_AA, False)
+        cv2.putText(frame, "Avg Queue Time: " + str(avg_queue_time) + 's', ( 30, 690 ), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1.5, (0, 255, 77), 2, cv2.LINE_AA, False)
 
         # Calculating the average wait time in the store
         total_people = len(store_track_dict)
@@ -208,8 +208,8 @@ def main(yolo):
         avg_store_time = round((avg_store_frames / Input_FPS), 2)
 
         # Video Overlay - Average Store time
-        cv2.putText(frame, "Average Store Time: " + str(avg_store_time) + ' seconds', ( 30, 650 ), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1.7, (0, 0, 0), 3, cv2.LINE_AA, False)
-        cv2.putText(frame, "Average Store Time: " + str(avg_store_time) + ' seconds', ( 30, 650 ), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1.7, (0, 255, 77), 2, cv2.LINE_AA, False)
+        cv2.putText(frame, "Avg Store Time: " + str(avg_store_time) + 's', ( 30, 650 ), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1.5, (0, 0, 0), 3, cv2.LINE_AA, False)
+        cv2.putText(frame, "Avg Store Time: " + str(avg_store_time) + 's', ( 30, 650 ), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1.5, (0, 255, 77), 2, cv2.LINE_AA, False)
 
         # Write the frame onto the VideoWriter object
         out.write(frame)
