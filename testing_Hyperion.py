@@ -42,7 +42,7 @@ def main(yolo):
 
     # Determining the FPS of a video having variable frame rate
     # cv2.CAP_PROP_FPS is not used since it returns 'infinity' for variable frame rate videos
-    filename = "cyber.mp4"
+    filename = "Cafe_Hyperion.avi"
     # Determining the total duration of the video
     clip = VideoFileClip(filename)
 
