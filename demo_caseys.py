@@ -180,8 +180,8 @@ def main(yolo):
             queue_point_test = center_point_inside_polygon(bbox, pts)
             alley_point_test = center_point_inside_polygon(bbox, pts2)
 
-            if queue_point_test == 'inside' or alley_point_test == 'inside':
-                cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])), (255,0,0), 2)
+            # if queue_point_test == 'inside' or alley_point_test == 'inside':
+                # cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])), (255,0,0), 2)
 
         # Video Overlay - Head Count Data at that instant
         cv2.putText(frame, "Count: " + str(head_count_store), ( 30, 610 ), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1.5, (0, 0, 0), 3, cv2.LINE_AA, False)
