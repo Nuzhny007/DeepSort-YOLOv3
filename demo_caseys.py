@@ -96,6 +96,9 @@ def main(yolo):
         if ret != True:
             break
 
+        if frame_count == 5000:
+            break
+
         head_count_store = 0
         head_count_queue = 0
         t1 = time.time()
