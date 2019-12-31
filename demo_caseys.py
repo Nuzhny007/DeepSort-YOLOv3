@@ -118,9 +118,9 @@ def main(yolo):
         tracker.update(detections)
 
         # Defining the co-ordinates of the area of interest
-        pts2 = np.array([[0, 0],[290,0],[290,150],[360, 250],[360,350],[80,480],[0,480],[0,143]], np.int32)
+        pts2 = np.array([[380, 250], [380, 360], [170, 480], [0, 480], [0, 380]], np.int32)
         pts2 = pts.reshape((-1,1,2))     # Queue Area
-        pts = np.array([[290,0],[640,0],[640,480],[80,480],[360,350],[360,250],[290,150]], np.int32)
+        pts = np.array([[0, 380], [0, 0], [640, 0], [640, 480], [170, 480], [380, 360], [380, 250]], np.int32)
         pts = pts2.reshape((-1,1,2))   # Alley Region
         cv2.polylines(frame, [pts2], True, (0,255,255), thickness=2)
         cv2.polylines(frame, [pts], True, (255,0,255), thickness=1)
@@ -181,7 +181,7 @@ def main(yolo):
             alley_point_test = center_point_inside_polygon(bbox, pts2)
 
             # if queue_point_test == 'inside' or alley_point_test == 'inside':
-                # cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])), (255,0,0), 2)
+                # cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])), (255,0,0), 	2)
 
         # Video Overlay - Head Count Data at that instant
         cv2.putText(frame, "Count: " + str(head_count_store), ( 30, 610 ), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1.5, (0, 0, 0), 3, cv2.LINE_AA, False)
