@@ -118,12 +118,12 @@ def main(yolo):
         tracker.update(detections)
 
         # Defining the co-ordinates of the area of interest
-        pts = np.array([[0, 0],[290,0],[290,150],[360, 250],[360,350],[80,480],[0,480],[0,143]], np.int32)
-        pts = pts.reshape((-1,1,2))     # Queue Area
-        pts2 = np.array([[290,0],[640,0],[640,480],[80,480],[360,350],[360,250],[290,150]], np.int32)
-        pts2 = pts2.reshape((-1,1,2))   # Alley Region
-        cv2.polylines(frame, [pts], True, (0,255,255), thickness=2)
-        cv2.polylines(frame, [pts2], True, (255,0,255), thickness=1)
+        pts2 = np.array([[0, 0],[290,0],[290,150],[360, 250],[360,350],[80,480],[0,480],[0,143]], np.int32)
+        pts2 = pts.reshape((-1,1,2))     # Queue Area
+        pts = np.array([[290,0],[640,0],[640,480],[80,480],[360,350],[360,250],[290,150]], np.int32)
+        pts = pts2.reshape((-1,1,2))   # Alley Region
+        cv2.polylines(frame, [pts2], True, (0,255,255), thickness=2)
+        cv2.polylines(frame, [pts], True, (255,0,255), thickness=1)
         
         # Drawing tracker boxes and frame count for people inside the areas of interest
         for track in tracker.tracks:
