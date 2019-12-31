@@ -119,9 +119,9 @@ def main(yolo):
 
         # Defining the co-ordinates of the area of interest
         pts2 = np.array([[380, 250], [380, 360], [170, 480], [0, 480], [0, 380]], np.int32)
-        pts2 = pts.reshape((-1,1,2))     # Queue Area
+        pts2 = pts2.reshape((-1,1,2))     # Queue Area
         pts = np.array([[0, 380], [0, 0], [640, 0], [640, 480], [170, 480], [380, 360], [380, 250]], np.int32)
-        pts = pts2.reshape((-1,1,2))   # Alley Region
+        pts = pts.reshape((-1,1,2))   # Alley Region
         cv2.polylines(frame, [pts2], True, (0,255,255), thickness=2)
         cv2.polylines(frame, [pts], True, (255,0,255), thickness=1)
         
