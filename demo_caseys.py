@@ -13,6 +13,7 @@ import numpy as np
 from PIL import Image
 from yolo import YOLO
 from timeit import time
+from pylab import array, uint8
 import matplotlib.pyplot as plt
 from moviepy.editor import VideoFileClip
 
@@ -110,6 +111,11 @@ def main(yolo):
             break
 
         frame = unsharp_mask(frame)
+        maxIntensity = 255.0
+        phi = 1
+        theta = 1
+        newImage1 = (maxIntensity/phi)*(frame/(maxIntensity/theta))**1.3
+        frame = array(newImage1,dtype=uint8)
 
         if frame_count == 5000:
             break
