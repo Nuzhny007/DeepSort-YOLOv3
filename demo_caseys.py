@@ -37,12 +37,25 @@ def center_point_inside_polygon(bounding_box, polygon_coord):
         return "outside"
     return "inside"
 
+# Video Processing function that creates an unsharp mask to sharpen each frame of the video
+def unsharp_mask(image, kernel_size=(5, 5), sigma=1.0, amount=5.0, threshold=0):
+    """Return a sharpened version of the image, using an unsharp mask."""
+    blurred = cv2.GaussianBlur(image, kernel_size, sigma)
+    sharpened = float(amount + 1) * image - float(amount) * blurred
+    sharpened = np.maximum(sharpened, np.zeros(sharpened.shape))
+    sharpened = np.minimum(sharpened, 255 * np.ones(sharpened.shape))
+    sharpened = sharpened.round().astype(np.uint8)
+    if threshold > 0:
+        low_contrast_mask = np.absolute(image - blurred) < threshold
+        np.copyto(sharpened, image, where=low_contrast_mask)
+    return sharpened
+
 # Main Function which implements the YOLOv3 Detector and DeepSort Tracking Algorithm
 def main(yolo):
 
     # Determining the FPS of a video having variable frame rate
     # cv2.CAP_PROP_FPS is not used since it returns 'infinity' for variable frame rate videos
-    filename = "Casey's_Corner.avi"
+    filename = "clip1.mp4"
     # Determining the total duration of the video
     clip = VideoFileClip(filename)
 
@@ -95,6 +108,8 @@ def main(yolo):
         ret, frame = video_capture.read()
         if ret != True:
             break
+
+        frame = unsharp_mask(frame)
 
         if frame_count == 5000:
             break
